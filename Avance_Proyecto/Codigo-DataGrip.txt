@@ -1,5 +1,8 @@
 CREATE DATABASE Farmacia;
+GO
+
 USE Farmacia;
+GO
 
 CREATE TABLE Medicamentos(
     id_medicamento int PRIMARY KEY,
@@ -24,6 +27,7 @@ VALUES (267,'Resfrianex',43,5);
 
 SELECT id_medicamento,nombre_medicamento,cantidad,precio_venta
 FROM Medicamentos;
+GO
 
  CREATE TABLE Inventario(
      id_inventario int PRIMARY KEY,
@@ -51,6 +55,7 @@ VALUES (7,267,'Resfrianex',27,3,5);
 
 SELECT id_inventario,id_medicamento,nombre_medicamento,cantidad,precio_compra,precio_venta
 FROM Inventario;
+GO
 
 CREATE TABLE Facturacion(
     id_factura int PRIMARY KEY,
@@ -82,6 +87,7 @@ VALUES (437,267,'Yesica Rivera',30/11/2021,5,'Resfrianex',5,954,1867);
 
 SELECT id_factura,id_medicamento,nombre_cliente,fecha_venta,precio_venta,nombre_medicamento,cantidad,id_personal,CI_cliente
 FROM Facturacion;
+GO
 
 CREATE TABLE Personal(
     id_personal int PRIMARY KEY,
@@ -101,3 +107,84 @@ VALUES (347,'Lucero Chambi','F',21,8462);
 
 SELECT id_personal,nombre_completo,genero,edad,CI
 FROM Personal;
+GO
+
+SELECT  inv.cantidad
+FROM  Inventario as inv
+WHERE inv.id_medicamento=124;
+GO
+
+SELECT fa.nombre_medicamento,DATENAME (DW, fecha_venta)+', '+ DATENAME(DAY, fecha_venta)+', '
+                                  +DATENAME(MONTH, fecha_venta)+', '+DATENAME(YEAR, fecha_venta)
+FROM Facturacion as fa
+GO
+
+SELECT fa.nombre_medicamento
+FROM Facturacion as fa
+WHERE nombre_cliente='Yesica Rivera'
+GO
+
+SELECT id_inventario,id_medicamento,nombre_medicamento,cantidad,precio_compra,precio_venta
+FROM Inventario;
+GO
+
+CREATE OR ALTER FUNCTION valida_password (@passwordInfo VARCHAR(100))
+RETURNS VARCHAR(100)
+AS
+    BEGIN
+        DECLARE @respuesta VARCHAR(100) = '';
+        IF LEN(@passwordInfo) >= 8
+            BEGIN
+                SET @respuesta = 'Password correcto!';
+            END
+        ELSE
+            BEGIN
+                SET @respuesta = 'Password incorrecto!';
+            END
+        RETURN @respuesta;
+    END;
+SELECT dbo.valida_password('Yeami954');
+GO
+
+SELECT id_personal,nombre_completo,genero,edad,CI
+FROM Personal;
+GO
+
+SELECT COUNT(per.edad)
+FROM Personal as per
+WHERE per.edad>=18;
+GO
+
+CREATE OR ALTER VIEW  cantidad_inventario AS
+SELECT inv.nombre_medicamento AS nombre_medicamento, inv.cantidad as cantidad, cantidades=
+        CASE
+            WHEN inv.cantidad > 1 AND inv.cantidad <= 20 THEN 'CANTIDAD BAJA'
+
+            WHEN inv.cantidad > 20 AND inv.cantidad <= 40 THEN 'CANTIDAD MEDIANA'
+
+            WHEN inv.cantidad > 40 AND inv.cantidad <= 60 THEN 'CANTIDAD ALTA'
+
+        ELSE 'CANTIDAD DESCONOCIDA'
+            END
+FROM Inventario AS inv;
+
+SELECT ca.*
+FROM cantidad_inventario as ca;
+GO
+
+CREATE OR ALTER VIEW precios AS
+    SELECT inv.precio_venta, precio =
+        CASE
+            WHEN inv.precio_venta > 1 AND inv.precio_venta>= 4 THEN 'BARATO'
+            WHEN inv.precio_venta > 4 AND inv.precio_venta>= 7 THEN 'CARO'
+            ELSE 'Sin precio'
+        END
+    FROM Inventario AS inv;
+
+SELECT pr.*
+FROM precios AS pr;
+GO
+
+SELECT id_medicamento,nombre_medicamento,cantidad,precio_venta
+FROM Medicamentos;
+GO
